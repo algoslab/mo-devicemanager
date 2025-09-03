@@ -5,4 +5,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/device-manager', [DeviceController::class, 'index']);
 Route::post('/device-save-update', [DeviceController::class, 'deviceSaveUpdate'])->name('deviceSaveUpdate');
+Route::get('/device-show', [DeviceController::class, 'showDevice'])->name('showDevice');
 

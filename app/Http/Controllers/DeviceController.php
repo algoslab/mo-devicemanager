@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Device;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class DeviceController extends Controller
 {
@@ -22,5 +23,15 @@ class DeviceController extends Controller
         $device = Device::create($validated);
 
         return response()->json(['success' => true]);
+    }
+
+    public function showDevice(){
+        $model = Device::orderBy('id', 'desc')->get();
+        return  DataTables::of($model)
+                ->addColumn('action', function($row){
+                    return 'action';
+                })
+                ->escapeColumns([])
+                ->make(true);
     }
 }

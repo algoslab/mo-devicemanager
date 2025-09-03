@@ -18,10 +18,10 @@
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDeviceModal" >এড ডিভাইস</button>
     </div>
 
-    <table class="table table-striped table-hover">
+    <table class="table table-striped table-hover" id="datatable">
         <thead class="table-dark">
             <tr>
-                <th>সিরিয়াল নং</th>
+                <th></th>
                 <th>ব্যক্তি বা কোম্পানীর নাম</th>
                 <th>ফোন নং</th>
                 <th>মেয়াদ</th>
@@ -122,7 +122,33 @@
             document.getElementById('phone').value = '';
             document.getElementById('validity').value = '1 বছর';
 
-            closeModal('add');
+            //Show views...
+            $("#datatable").DataTable({
+                processing: true,
+                serverSide: true,
+                searchable: true,
+                bDestroy: true,
+                language: {
+                    search: "", // removes label text
+                    lengthMenu: "_MENU_"
+                },
+                ajax: {
+                    url: "{{ route('showDevice') }}",
+                    type: 'GET',
+                    error: function (xhr) {
+                        console.error(xhr.responseText);
+                    }
+                },
+                columns: [
+                    { data: 'serial', title: 'সিরিয়াল নং' },
+                    { data: 'name', title: 'ব্যক্তি বা কোম্পানীর নাম' },
+                    { data: 'phone', title: 'ফোন নং' },
+                    { data: 'validity', title: 'মেয়াদ' },
+                    { data: 'action', title: 'অ্যাকশন' },
+                ],
+                order: [[0, 'desc']],
+            });
+
         } else {
             alert('অনুগ্রহ করে সব ফিল্ড পূরণ করুন।');
         }
