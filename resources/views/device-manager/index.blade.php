@@ -2,7 +2,7 @@
 
 @section('styles')
 <style>
-    .heading {
+.heading {
     border-bottom: 2px solid #3498db; /* full width line */
     margin-bottom: 30px;
     padding-bottom: 10px;
@@ -44,7 +44,7 @@
     </table>
 </div>
 
-<!-- Modal. -->
+<!-- Modal add new device -->
 
 <div class="modal fade" id="addDeviceModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -87,6 +87,47 @@
   </div>
 </div>
 
+
+<!-- Renew Modal -->
+<div class="modal fade" id="renewModal" tabindex="-1" aria-labelledby="renewModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="renewModalLabel">মেয়াদ রিনিউ করুন</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <input type="hidden" name="update_id" />
+        <div class="mb-3">
+          <label for="renewSerial" class="form-label">সিরিয়াল নং</label>
+          <input type="text" id="renewSerial" name="renewSerial" class="form-control text-white bg-secondary" readonly >
+        </div>
+        <div class="mb-3">
+          <label for="renewValidity" class="form-label">নতুন মেয়াদ</label>
+          <select id="renewValidity" name="renewValidity" class="form-select">
+            <option value="1">১ বছর</option>
+            <option value="2">২ বছর</option>
+            <option value="3">৩ বছর</option>
+            <option value="লাইফটাইম">লাইফটাইম</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="renewDevice()">রিনিউ করুন</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">বাতিল করুন</button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+
 @endsection
 
 @section('scripts')
@@ -110,7 +151,78 @@
 
     });
 
-   async function addDevice() {
+    function showList(){
+        //Show views...
+            $("#datatable").DataTable({
+                processing: true,
+                serverSide: true,
+                searchable: true,
+                bDestroy: true,
+                language: {
+                    search: "", // removes label text
+                    lengthMenu: "_MENU_"
+                },
+                ajax: {
+                    url: "{{ route('showDevice') }}",
+                    type: 'GET',
+                    error: function (xhr) {
+                        console.error(xhr.responseText);
+                    }
+                },
+                columns: [
+                    { data: 'serial', title: 'সিরিয়াল নং' },
+                    { data: 'name', title: 'ব্যক্তি বা কোম্পানীর নাম' },
+                    { data: 'phone', title: 'ফোন নং' },
+                    { data: 'validity', title: 'মেয়াদ' },
+                    { data: 'action', title: 'অ্যাকশন' },
+                ],
+                order: [[0, 'desc']],
+            });
+    }
+
+    function fillForm(id, serial, validity){
+        $("input[name='update_id']").val(id);
+        $("input[name='renewSerial']").val(serial);
+        $("select[name='renewValidity']").val(validity).trigger("change");
+    }
+
+    function renewDevice(){
+        
+        let update_id = $("input[name='update_id']").val();
+        let validity = $("select[name='renewValidity']").val();
+        
+        if(update_id){
+            let data = {
+                update_id: update_id,
+                validity: validity
+            };
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            
+            $.ajax({
+                url: "{{ route('renewDevice') }}",  // Laravel route
+                type: 'POST',
+                data: data,
+                success: function(response) {
+                    alert('Device renewed successfully!');
+                    $('#renewModal').modal('hide');
+                    // Optionally update table dynamically
+                },
+                error: function(xhr, status, error) {
+                    alert('Failed to renew device!');
+                }
+            });
+
+            showList();
+        }
+        
+    }
+
+    async function addDevice() {
         const slNo = document.getElementById('serial').value;
         const companyName = document.getElementById('name').value;
         const phoneNo = document.getElementById('phone').value;
@@ -152,32 +264,7 @@
             document.getElementById('phone').value = '';
             document.getElementById('validity').value = '1 বছর';
 
-            //Show views...
-            $("#datatable").DataTable({
-                processing: true,
-                serverSide: true,
-                searchable: true,
-                bDestroy: true,
-                language: {
-                    search: "", // removes label text
-                    lengthMenu: "_MENU_"
-                },
-                ajax: {
-                    url: "{{ route('showDevice') }}",
-                    type: 'GET',
-                    error: function (xhr) {
-                        console.error(xhr.responseText);
-                    }
-                },
-                columns: [
-                    { data: 'serial', title: 'সিরিয়াল নং' },
-                    { data: 'name', title: 'ব্যক্তি বা কোম্পানীর নাম' },
-                    { data: 'phone', title: 'ফোন নং' },
-                    { data: 'validity', title: 'মেয়াদ' },
-                    { data: 'action', title: 'অ্যাকশন' },
-                ],
-                order: [[0, 'desc']],
-            });
+            showList();
 
         } else {
             alert('অনুগ্রহ করে সব ফিল্ড পূরণ করুন।');
