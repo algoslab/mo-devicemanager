@@ -19,8 +19,11 @@ class DeviceController extends Controller
             'phone' => 'required|string',
             'validity' => 'required|string',
         ]);
-        // Save to database
-        $device = Device::create($validated);
+
+        Device::updateOrCreate(
+                [ 'id' => $request->update_id ],  // search condition
+                $validated // values to insert or update
+            );
 
         return response()->json(['success' => true]);
     }
@@ -38,6 +41,14 @@ class DeviceController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function deviceDelete(Request $request){
+        $device = Device::find($request->id);
+
+        if ($device) {
+            $device->delete();
+        }
+    }
+
     
 
     public function showDevice(){
@@ -46,9 +57,9 @@ class DeviceController extends Controller
                 ->addColumn('action', function($row){
                     $html = "<select >
                             <option value='0'>SELECT</option>
-                            <option  value='1'>Edit</option>
-                            <option onclick=\"fillForm($row->id,$row->serial, '$row->validity')\" data-bs-toggle='modal' data-bs-target='#renewModal' value='2'>Renew</option>
-                            <option value='3'>Delete</option>
+                            <option value='1' onclick=\"editForm($row->id,'$row->serial', '$row->validity', '$row->phone', '$row->name')\" data-bs-toggle='modal' data-bs-target='#addDeviceModal'>Edit</option>
+                            <option value='2' onclick=\"fillForm($row->id,'$row->serial', '$row->validity')\" data-bs-toggle='modal' data-bs-target='#renewModal' >Renew</option>
+                            <option value='3' onclick=\"deviceDelete($row->id)\">Delete</option>
                         </select>";
                     return $html;
                 })

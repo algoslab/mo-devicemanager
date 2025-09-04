@@ -55,23 +55,24 @@
       </div>
       <div class="modal-body">
         @csrf
+        <input type="hidden" name="update_id" id="update_id" value="" />
         <!-- Your form fields here -->
         <div class="mb-3">
             <label for="serial" class="form-label">সিরিয়াল নং</label>
-            <input type="text" id="serial" class="form-control">
+            <input type="text" name="serial" id="serial" class="form-control">
         </div>
         <div class="mb-3">
             <label for="name" class="form-label">ব্যক্তি বা কোম্পানীর নাম</label>
-            <input type="text" id="name" class="form-control">
+            <input type="text" id="name" name="name" class="form-control">
         </div>
         <div class="mb-3 position-relative">
             <label for="phone" class="form-label">ফোন নং</label>
-            <input type="text" id="phone" class="form-control" > <!-- oninput="checkWhatsAppStatus()" -->
+            <input type="text" id="phone" name="phone" class="form-control" > <!-- oninput="checkWhatsAppStatus()" -->
             <span id="whatsappTickAdd" class="whatsapp-icon">✔</span>
         </div>
         <div class="mb-3">
             <label for="validity" class="form-label">মেয়াদ</label>
-            <select id="validity" class="form-select">
+            <select id="validity" name="validity" class="form-select">
                 <option value="1">১ বছর</option>
                 <option value="2">২ বছর</option>
                 <option value="3">৩ বছর</option>
@@ -101,7 +102,7 @@
       
       <!-- Modal Body -->
       <div class="modal-body">
-        <input type="hidden" name="update_id" />
+        <input type="hidden" name="renew_update_id" id="renew_update_id" value=""/>
         <div class="mb-3">
           <label for="renewSerial" class="form-label">সিরিয়াল নং</label>
           <input type="text" id="renewSerial" name="renewSerial" class="form-control text-white bg-secondary" readonly >
@@ -180,15 +181,23 @@
             });
     }
 
-    function fillForm(id, serial, validity){
+    function editForm(id, serial, validity, phone, name){
         $("input[name='update_id']").val(id);
+        $("input[name='serial']").val(serial);
+        $("select[name='validity']").val(validity).trigger("change");
+        $("input[name='phone']").val(phone);
+        $("input[name='name']").val(name);
+    }
+
+    function fillForm(id, serial, validity){
+        $("input[name='renew_update_id']").val(id);
         $("input[name='renewSerial']").val(serial);
         $("select[name='renewValidity']").val(validity).trigger("change");
     }
 
     function renewDevice(){
         
-        let update_id = $("input[name='update_id']").val();
+        let update_id = $("input[name='renew_update_id']").val();
         let validity = $("select[name='renewValidity']").val();
         
         if(update_id){
@@ -223,6 +232,7 @@
     }
 
     async function addDevice() {
+        const update_id = document.getElementById('update_id').value;
         const slNo = document.getElementById('serial').value;
         const companyName = document.getElementById('name').value;
         const phoneNo = document.getElementById('phone').value;
@@ -232,6 +242,7 @@
 
 
             let data = {
+                update_id: update_id,
                 serial: slNo,
                 name: companyName,
                 phone: phoneNo,
@@ -269,6 +280,30 @@
         } else {
             alert('অনুগ্রহ করে সব ফিল্ড পূরণ করুন।');
         }
+    }
+
+    function deviceDelete(id){
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        let data = {
+                id: id,
+            };
+        $.ajax({
+            url: "{{ route('deviceDelete') }}",  // Laravel route
+            type: 'POST',
+            data: data,
+            success: function(response) {
+                alert('Device deleted successfully!');
+                // Optionally update table dynamically
+            },
+            error: function(xhr, status, error) {
+                alert('Failed to delete device!');
+            }
+        });
+        showList();
     }
 
 </script>
