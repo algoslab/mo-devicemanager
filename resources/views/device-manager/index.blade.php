@@ -2,14 +2,35 @@
 
 @section('styles')
 <style>
-    
+    .heading {
+    border-bottom: 2px solid #3498db; /* full width line */
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    position: relative;
+}
+
+.dashboard-title {
+    color: #2c3e50;
+    font-weight: bold;
+    margin: 0;
+}
+
+#datatable thead th {
+    background-color: black !important;
+    color: white !important;
+}
+
 </style>
 @endsection
 
 @section('content')
 <!-- Dashboard Page -->
 <div class="container mt-5" id="dashboard-page">
-    <div class=" mb-3">
+    <div class="heading mb-3 d-flex align-items-center justify-content-center position-relative">
+        <!-- Left button -->
+        <button class="btn btn-info position-absolute start-0 top-50 translate-middle-y">
+            Dynamic button
+        </button>
         <h1 class=" pb-2 text-center dashboard-title">ডিভাইস ম্যানেজমেন্ট ড্যাশবোর্ড</h1>
         <button class="btn btn-danger logout-btn" onclick="logout()">লগআউট</button>
     </div>
@@ -19,17 +40,7 @@
     </div>
 
     <table class="table table-striped table-hover" id="datatable">
-        <thead class="table-dark">
-            <tr>
-                <th></th>
-                <th>ব্যক্তি বা কোম্পানীর নাম</th>
-                <th>ফোন নং</th>
-                <th>মেয়াদ</th>
-                <th>অ্যাকশন</th>
-            </tr>
-        </thead>
-        <tbody id="deviceTableBody">
-        </tbody>
+        
     </table>
 </div>
 
@@ -80,6 +91,25 @@
 
 @section('scripts')
 <script>
+
+    $(document).ready(function() {
+        // Code to run on page load
+        // Example: Initialize your DataTable
+        $('#datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('showDevice') }}",
+            columns: [
+                { data: 'serial', title: 'সিরিয়াল নং' },
+                { data: 'name', title: 'ব্যক্তি বা কোম্পানীর নাম' },
+                { data: 'phone', title: 'ফোন নং' },
+                { data: 'validity', title: 'মেয়াদ' },
+                { data: 'action', title: 'অ্যাকশন' }
+            ]
+        });
+
+    });
+
    async function addDevice() {
         const slNo = document.getElementById('serial').value;
         const companyName = document.getElementById('name').value;

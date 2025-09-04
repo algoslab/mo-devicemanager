@@ -34,15 +34,6 @@
             display: none;
         }
 
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-            margin-bottom: 30px;
-            font-weight: bold;
-        }
-
         .logout-btn {
             background-color: #e74c3c;
             color: white;
@@ -51,8 +42,8 @@
             border-radius: 5px;
             cursor: pointer;
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: -40px;
+            right: -40px;
             font-size: 14px;
         }
         .logout-btn:hover {
