@@ -54,9 +54,20 @@ class DeviceController extends Controller
     public function showDevice(){
         $model = Device::orderBy('id', 'desc')->get();
         return  DataTables::of($model)
+                ->editColumn('phone', function($row){
+                    return "$row->phone ✔";
+                })
+                ->editColumn('validity', function($row){
+                    if($row->validity=='লাইফটাইম'){
+                        $validity = $row->validity;
+                    }else{
+                        $validity = $row->validity." বছর";
+                    }
+                    return $validity;
+                })
                 ->addColumn('action', function($row){
-                    $html = "<select >
-                            <option value='0'>SELECT</option>
+                    $html = "<select class='form-select form-select-sm bg-info'>
+                            <option value='0'>Action</option>
                             <option value='1' onclick=\"editForm($row->id,'$row->serial', '$row->validity', '$row->phone', '$row->name')\" data-bs-toggle='modal' data-bs-target='#addDeviceModal'>Edit</option>
                             <option value='2' onclick=\"fillForm($row->id,'$row->serial', '$row->validity')\" data-bs-toggle='modal' data-bs-target='#renewModal' >Renew</option>
                             <option value='3' onclick=\"deviceDelete($row->id)\">Delete</option>
