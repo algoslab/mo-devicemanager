@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Device;
+use App\Models\ExpiryMessage;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -76,5 +77,19 @@ class DeviceController extends Controller
                 })
                 ->escapeColumns([])
                 ->make(true);
+    }
+
+    public function expiryMessageUpdate(Request $request){
+        $validated = $request->validate([
+            'message' => 'required|string',
+        ]);
+
+        ExpiryMessage::where('id', 1)->update(['message' => $validated['message']]);
+
+    }
+
+    public function showMessage(){
+        $model = ExpiryMessage::find(1);
+        echo $model->message;
     }
 }

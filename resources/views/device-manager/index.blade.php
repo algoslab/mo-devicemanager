@@ -28,8 +28,8 @@
 <div class="container mt-5" id="dashboard-page">
     <div class="heading mb-3 d-flex align-items-center justify-content-center position-relative">
         <!-- Left button -->
-        <button class="btn btn-info position-absolute start-0 top-50 translate-middle-y">
-            Dynamic button
+        <button onclick="showMessage()" class="btn btn-info position-absolute start-0 top-50 translate-middle-y" data-bs-toggle="modal" data-bs-target="#message">
+            Dynamic Message
         </button>
         <h1 class=" pb-2 text-center dashboard-title">ডিভাইস ম্যানেজমেন্ট ড্যাশবোর্ড</h1>
         <button class="btn btn-danger logout-btn" onclick="logout()">লগআউট</button>
@@ -121,6 +121,35 @@
       <!-- Modal Footer -->
       <div class="modal-footer">
         <button class="btn btn-primary" onclick="renewDevice()">রিনিউ করুন</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">বাতিল করুন</button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- Expiry Message Modal -->
+<div class="modal fade" id="message" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="messageModalLabel">Add Expiry Message</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="expiryMessage" class="form-label">Message</label>
+          <textarea type="text" id="expiryMessage" name="expiryMessage" class="form-control" ></textarea>
+        </div>
+      </div>
+      
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="saveExpiryMessage()">রিনিউ করুন</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">বাতিল করুন</button>
       </div>
       
@@ -305,6 +334,54 @@
         });
         showList();
     }
+
+    function showMessage(){
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        let data = '';
+        $.ajax({
+            url: "{{ route('showMessage') }}",  // Laravel route
+            type: 'GET',
+            data: data,
+            success: function(response) {
+                document.getElementById('expiryMessage').value = response;
+            },
+            error: function(xhr, status, error) {
+                alert('Failed to save message!');
+            }
+        });
+    }
+
+    function saveExpiryMessage(){
+
+        let data = {
+                message: document.getElementById('expiryMessage').value
+            };
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $.ajax({
+            url: "{{ route('expiryMessageUpdate') }}",  // Laravel route
+            type: 'POST',
+            data: data,
+            success: function(response) {
+                alert('Message saved successfully!');
+                $('#message').modal('hide');
+                // Optionally update table dynamically
+            },
+            error: function(xhr, status, error) {
+                alert('Failed to save message!');
+            }
+        });
+    }
+
+    
 
 </script>
 @endsection
